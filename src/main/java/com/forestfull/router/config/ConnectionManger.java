@@ -9,10 +9,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 @EnableWebFluxSecurity
 public class ConnectionManger {
 
+
     @Bean
     WebClient webClient(){
         return WebClient.builder().build();
     }
-
-
 }
