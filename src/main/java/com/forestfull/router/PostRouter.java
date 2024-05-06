@@ -1,5 +1,7 @@
 package com.forestfull.router;
 
+import com.forestfull.router.service.CallService;
+import com.forestfull.router.dto.ResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,7 +11,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @RestController
 @RequiredArgsConstructor
-public class Router {
+public class PostRouter {
 
     private final WebClient webClient;
     private final CallService callService;
@@ -19,9 +21,9 @@ public class Router {
     }
 
     @PostMapping(URI.support + "/{solution}/{token}")
-    ResponseEntity<ResponseVO> support(@PathVariable String solution, @PathVariable String token) {
+    ResponseEntity<ResponseDTO> support(@PathVariable String solution, @PathVariable String token) {
 
 
-        return ResponseEntity.ok(ResponseVO.builder().build());
+        return ResponseEntity.ok(ResponseDTO.builder().build());
     }
 }

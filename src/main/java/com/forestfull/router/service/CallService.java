@@ -1,4 +1,4 @@
-package com.forestfull.router;
+package com.forestfull.router.service;
 
 import org.springframework.stereotype.Service;
 
