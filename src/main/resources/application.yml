@@ -3,8 +3,8 @@ spring:
     name: master-router
 db:
   url: r2dbc:mariadb://${db.user}:${db.password}@${db.host}:3306/${db.schema}?${db.option}
-  user: df
-  password: df
-  host: df
-  schema: df
-  option: df
+  user: ""
+  password: ""
+  host: ""
+  schema: ""
+  option: ""
