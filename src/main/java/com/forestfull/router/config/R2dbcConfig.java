@@ -11,7 +11,7 @@ import org.springframework.data.r2dbc.config.AbstractR2dbcConfiguration;
 public class R2dbcConfig extends AbstractR2dbcConfiguration {
 
 
-    @Value("${datasource.url}")
+    @Value("${db.url}")
     private String connectionUrl;
 
     @Bean
