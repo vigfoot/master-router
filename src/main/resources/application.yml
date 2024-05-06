@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: master-router
+datasource:
+  url: r2dbc:mariadb://${datasource.user}:${datasource.password}@${datasource.host}:3306/${datasource.schema}?${datasource.option}
+  user: df
+  password: df
+  host: df
+  schema: df
+  option: df
