@@ -27,5 +27,4 @@ public class ExceptionResponse {
                         .contents(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
                         .build());
     }
-
 }
