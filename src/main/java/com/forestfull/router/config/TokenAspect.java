@@ -19,12 +19,12 @@ public class TokenAspect {
 
     @Before("execution(* com.forestfull.router.GetRouter.*(..))")
     void isCorrectedToken(JoinPoint joinPoint){
-        if (ObjectUtils.isEmpty(joinPoint.getArgs())) return;
+        if (ObjectUtils.isEmpty(joinPoint.getArgs()))
+            throw new RuntimeException(HttpStatus.BAD_REQUEST.name());
 
-//        joinPoint.getArgs()
+        final String token = String.valueOf(joinPoint.getArgs()[joinPoint.getArgs().length - 1]);
 
-
-        throw new RuntimeException(HttpStatus.BAD_REQUEST.name());
+        if (!callService.isCorrectedToken(token))
+            throw new RuntimeException(HttpStatus.BAD_REQUEST.name());
     }
-
 }

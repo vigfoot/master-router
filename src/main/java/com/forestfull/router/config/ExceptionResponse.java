@@ -17,11 +17,15 @@ public class ExceptionResponse {
             return ResponseEntity
                     .badRequest()
                     .body(ResponseDTO.builder()
-                            .dataType(ResponseDTO.DATA_TYPE.STRING)
+                            .dataType(ResponseDTO.DATA_TYPE.ERROR)
                             .contents(HttpStatus.BAD_REQUEST.getReasonPhrase())
                             .build());
 
-        return ResponseEntity.internalServerError().build();
+        return ResponseEntity.internalServerError()
+                .body(ResponseDTO.builder()
+                        .dataType(ResponseDTO.DATA_TYPE.ERROR)
+                        .contents(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+                        .build());
     }
 
 }

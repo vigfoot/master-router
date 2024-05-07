@@ -6,4 +6,7 @@ import org.springframework.stereotype.Service;
 public class CallService {
 
 
+    public boolean isCorrectedToken(String token) {
+        return false;
+    }
 }

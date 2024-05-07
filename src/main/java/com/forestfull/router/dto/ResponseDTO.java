@@ -9,6 +9,6 @@ public class ResponseDTO {
     public Object contents;
 
     public enum DATA_TYPE {
-        STRING, JSON, JS_SCRIPT
+        STRING, JSON, JS_SCRIPT, ERROR
     }
 }
