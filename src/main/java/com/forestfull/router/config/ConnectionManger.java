@@ -1,6 +1,6 @@
 package com.forestfull.router.config;
 
-import com.forestfull.router.PostRouter;
+import com.forestfull.router.GetRouter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,7 +11,6 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Configuration
@@ -20,24 +19,19 @@ public class ConnectionManger {
 
     @Bean
     SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) {
-        return http
-                .authorizeExchange(spec -> {
-                    final String[] array = Arrays.stream(PostRouter.URI.class.getFields())
-                            .map(field -> {
-                                try {
-                                    return field.get(PostRouter.URI.class.getFields());
-                                } catch (IllegalAccessException e) {
-                                    e.printStackTrace(System.out);
-                                    log.error(e.getMessage());
-                                    return null;
-                                }
-                            })
-                            .map(String::valueOf)
-                            .toArray(String[]::new);
-                    spec.pathMatchers(HttpMethod.POST, array
-                            )
-                            .authenticated();
-                })
+        return http.authorizeExchange(spec -> spec.pathMatchers(HttpMethod.GET
+                        , Arrays.stream(GetRouter.URI.class.getFields())
+                                .map(field -> {
+                                    try {
+                                        return field.get(GetRouter.URI.class.getFields());
+                                    } catch (IllegalAccessException e) {
+                                        e.printStackTrace(System.out);
+                                        log.error(e.getMessage());
+                                        return null;
+                                    }
+                                })
+                                .map(uri -> uri + "/**")
+                                .toArray(String[]::new)).permitAll())
                 .build();
     }
 
