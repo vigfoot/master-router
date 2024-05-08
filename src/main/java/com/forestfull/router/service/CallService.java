@@ -5,10 +5,8 @@ import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
-import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -19,7 +17,6 @@ public class CallService {
 
     private final DatabaseClient DatabaseClient;
     private static Set<String> tokenSet;
-
 
     public boolean isCorrectedToken(String token) {
         if (ObjectUtils.isEmpty(tokenSet)) setTokenSet();
