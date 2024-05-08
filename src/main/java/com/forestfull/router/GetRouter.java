@@ -24,8 +24,6 @@ public class GetRouter {
     @GetMapping(URI.support + "/{solution}/{token}")
     ResponseEntity<ResponseDTO> support(@PathVariable String solution, @PathVariable String token) {
 
-
-
         return ResponseEntity.ok(ResponseDTO.builder().build());
     }
 }
