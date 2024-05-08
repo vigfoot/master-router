@@ -26,10 +26,10 @@ public class CallService {
 
     @Scheduled(fixedDelay = 10, timeUnit = TimeUnit.MINUTES)
     void setTokenSet() {
-        tokenSet = DatabaseClient.sql("SHOW TABLES")
+        tokenSet = DatabaseClient.sql("SELECT t.token FROM token t WHERE t.is_used")
                 .fetch()
                 .all()
-                .map(map -> Arrays.stream(map.values().toArray()).map(String::valueOf).collect(Collectors.joining(",")))
+                .map(map -> String.valueOf(map.get("token")))
                 .collect(Collectors.toSet())
                 .block();
     }

@@ -27,6 +27,7 @@ import reactor.core.publisher.Mono;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Objects;
 
 @Slf4j
 @Configuration
@@ -70,6 +71,7 @@ public class ConnectionManger {
                                                 return null;
                                             }
                                         })
+                                        .filter(Objects::nonNull)
                                         .map(uri -> uri + "/**")
                                         .toArray(String[]::new))
                         .access((authentication, context) -> {
