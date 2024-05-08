@@ -19,6 +19,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -53,7 +54,11 @@ public class ConnectionManger {
     SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .logout(ServerHttpSecurity.LogoutSpec::disable)
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
+                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+                .anonymous(ServerHttpSecurity.AnonymousSpec::disable)
+                .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
                 .authorizeExchange(spec -> spec.pathMatchers(HttpMethod.GET
                                 , Arrays.stream(GetRouter.URI.class.getFields())
                                         .map(field -> {
