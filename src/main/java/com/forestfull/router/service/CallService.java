@@ -5,9 +5,9 @@ import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
-import java.util.Set;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -16,21 +16,21 @@ import java.util.stream.Collectors;
 public class CallService {
 
     private final DatabaseClient DatabaseClient;
-    private static Set<String> tokenSet;
+    private static Map<String, String> tokenSet;
 
-    public boolean isCorrectedToken(String token) {
+    public String getSolution(String token) {
         if (ObjectUtils.isEmpty(tokenSet)) setTokenSet();
 
-        return tokenSet.contains(token);
+        final String solution = tokenSet.get(token);
+        return StringUtils.hasText(solution) ? solution : null;
     }
 
     @Scheduled(fixedDelay = 10, timeUnit = TimeUnit.MINUTES)
     void setTokenSet() {
-        tokenSet = DatabaseClient.sql("SELECT t.token FROM token t WHERE t.is_used")
+        tokenSet = DatabaseClient.sql("SELECT t.solution, t.token FROM token t WHERE t.is_used")
                 .fetch()
                 .all()
-                .map(map -> String.valueOf(map.get("token")))
-                .collect(Collectors.toSet())
+                .collect(Collectors.toMap(map -> String.valueOf(map.get("token")), map -> String.valueOf(map.get("solution"))))
                 .block();
     }
 }

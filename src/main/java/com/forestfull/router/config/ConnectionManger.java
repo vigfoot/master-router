@@ -1,33 +1,30 @@
 package com.forestfull.router.config;
 
 import com.forestfull.router.GetRouter;
-import com.forestfull.router.dto.ResponseDTO;
 import com.forestfull.router.service.CallService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Role;
-import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.server.PathContainer;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
-import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
+import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Configuration
@@ -75,14 +72,20 @@ public class ConnectionManger {
                                         .map(uri -> uri + "/**")
                                         .toArray(String[]::new))
                         .access((authentication, context) -> {
-                            final String token = context.getExchange()
+                            final List<String> pathList = Arrays.stream(context.getExchange()
                                     .getRequest()
                                     .getPath()
-                                    .pathWithinApplication()
-                                    .elements().getLast()
-                                    .value();
+                                    .pathWithinApplication().value()
+                                    .split("/"))
+                                    .filter(StringUtils::hasText)
+                                    .toList();
 
-                            return Mono.just(new AuthorizationDecision(callService.isCorrectedToken(token)));
+                            if (ObjectUtils.isEmpty(pathList) || pathList.size() < 3) return Mono.empty();
+
+                            final String solution = pathList.get(pathList.size() - 2);
+                            final String token = pathList.getLast();
+
+                            return Mono.just(new AuthorizationDecision(solution.equalsIgnoreCase(callService.getSolution(token))));
                         }))
                 .build();
     }
