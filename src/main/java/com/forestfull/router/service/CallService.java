@@ -24,7 +24,7 @@ public class CallService {
     public boolean isCorrectedToken(String token) {
         if (ObjectUtils.isEmpty(tokenSet)) setTokenSet();
 
-        return tokenSet.contains(token) || "hi".equals(token);
+        return tokenSet.contains(token);
     }
 
     @Scheduled(fixedDelay = 10, timeUnit = TimeUnit.MINUTES)
