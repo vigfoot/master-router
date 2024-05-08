@@ -11,7 +11,7 @@ import java.util.Objects;
 @RestControllerAdvice
 public class ExceptionResponse {
 
-    @ExceptionHandler(RuntimeException.class)
+    @ExceptionHandler({RuntimeException.class, Exception.class})
     ResponseEntity<ResponseDTO> isError(Exception e) {
         if (Objects.equals(HttpStatus.BAD_REQUEST.name(), e.getMessage()))
             return ResponseEntity
