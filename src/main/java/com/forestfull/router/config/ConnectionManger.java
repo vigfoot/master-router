@@ -70,14 +70,20 @@ public class ConnectionManger {
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .anonymous(ServerHttpSecurity.AnonymousSpec::disable)
                 .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
-                .authorizeExchange(spec -> spec.pathMatchers(HttpMethod.GET, uriPatterns).permitAll())
+                .authorizeExchange(spec -> spec.pathMatchers(HttpMethod.GET, uriPatterns)
+                        .access((authentication, context) -> {
+                            final String token = context.getExchange().getRequest().getQueryParams().get("token").getFirst();
+                            return StringUtils.hasText(token)
+                                    ? Mono.just(new AuthorizationDecision(true))
+                                    : Mono.empty();
+                        }))
                 .authorizeExchange(spec -> spec.pathMatchers(HttpMethod.POST, uriPatterns)
                         .access((authentication, context) -> {
                             final ServerHttpRequest request = context.getExchange().getRequest();
-                            final String token = request.getHeaders().getFirst("Authorization");
+                            final String token = request.getHeaders().getFirst("token");
                             final List<String> pathList = Arrays.stream(request.getPath()
-                                    .pathWithinApplication().value()
-                                    .split("/"))
+                                            .pathWithinApplication().value()
+                                            .split("/"))
                                     .filter(StringUtils::hasText)
                                     .toList();
 

@@ -23,6 +23,5 @@ public class SchedulerManager {
         tokenSet = tokenRepository.getTokenList()
                 .collect(Collectors.toMap(TokenDTO::getToken, TokenDTO::getSolution))
                 .block();
-
     }
 }

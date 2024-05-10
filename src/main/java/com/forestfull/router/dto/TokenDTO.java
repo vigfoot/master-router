@@ -8,5 +8,4 @@ public class TokenDTO {
     private Long client_id;
     private String solution;
     private String token;
-
 }

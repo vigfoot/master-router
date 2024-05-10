@@ -5,6 +5,7 @@ import com.forestfull.router.service.CallService;
 import com.forestfull.router.dto.NetworkVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -21,9 +22,11 @@ public class Router {
     }
 
     @GetMapping(URI.support)
-    Mono<ResponseEntity<NetworkVO.Response<TokenDTO>>> getSupportComponent() {
-        final Mono<NetworkVO.Response<TokenDTO>> supportComponent = callService.getSupportComponent();
-        return supportComponent.map(ResponseEntity::ok);
+    Mono<ResponseEntity<NetworkVO.Response<String>>> getSupportComponent() {
+        return callService.getSupportComponent()
+                .map(cp -> StringUtils.hasText(cp)
+                        ? ResponseEntity.ok(new NetworkVO.Response<>(NetworkVO.DATA_TYPE.STRING, cp))
+                        : ResponseEntity.noContent().build());
     }
 
     @PostMapping(URI.support + "/{solution}")
