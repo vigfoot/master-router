@@ -12,19 +12,13 @@ import java.util.Objects;
 public class ExceptionResponse {
 
     @ExceptionHandler({Exception.class})
-    ResponseEntity<ResponseDTO> isError(Exception e) {
+    ResponseEntity<ResponseDTO<String>> isError(Exception e) {
         if (Objects.equals(HttpStatus.BAD_REQUEST.name(), e.getMessage()))
             return ResponseEntity
                     .badRequest()
-                    .body(ResponseDTO.builder()
-                            .dataType(ResponseDTO.DATA_TYPE.ERROR)
-                            .contents(HttpStatus.BAD_REQUEST.getReasonPhrase())
-                            .build());
+                    .body(new ResponseDTO<>(ResponseDTO.DATA_TYPE.ERROR, HttpStatus.BAD_REQUEST.getReasonPhrase()));
 
         return ResponseEntity.internalServerError()
-                .body(ResponseDTO.builder()
-                        .dataType(ResponseDTO.DATA_TYPE.ERROR)
-                        .contents(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                        .build());
+                .body(new ResponseDTO<>(ResponseDTO.DATA_TYPE.ERROR, HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()));
     }
 }

@@ -1,12 +1,12 @@
 package com.forestfull.router.dto;
 
-import lombok.Builder;
+import lombok.RequiredArgsConstructor;
 
-@Builder
-public class ResponseDTO {
+@RequiredArgsConstructor
+public class ResponseDTO<T> {
 
-    public DATA_TYPE dataType;
-    public Object contents;
+    public final DATA_TYPE dataType;
+    public final T contents;
 
     public enum DATA_TYPE {
         STRING, JSON, XML, JS_SCRIPT, ERROR

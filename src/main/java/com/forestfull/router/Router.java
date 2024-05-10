@@ -1,5 +1,6 @@
 package com.forestfull.router;
 
+import com.forestfull.router.dto.TokenDTO;
 import com.forestfull.router.service.CallService;
 import com.forestfull.router.dto.ResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,13 +24,14 @@ public class Router {
     }
 
     @GetMapping(URI.support)
-    ResponseEntity<ResponseDTO> supportComponent() {
-        return ResponseEntity.ok(callService.supportComponent());
+    Mono<ResponseEntity<ResponseDTO<TokenDTO>>> supportComponent() {
+        final Mono<ResponseDTO<TokenDTO>> supportComponent = callService.getSupportComponent();
+        return supportComponent.map(ResponseEntity::ok);
     }
 
     @PostMapping(URI.support + "/{solution}")
-    ResponseEntity<ResponseDTO> requestSupport(@PathVariable String solution) {
+    Mono<ResponseEntity<ResponseDTO<TokenDTO>>> requestSupport(@PathVariable String solution) {
 
-        return ResponseEntity.ok(ResponseDTO.builder().build());
+        return Mono.empty();
     }
 }

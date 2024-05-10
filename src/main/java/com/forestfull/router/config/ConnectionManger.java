@@ -49,6 +49,20 @@ public class ConnectionManger {
 
     @Bean
     SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) {
+        final String[] uriPatterns = Arrays.stream(Router.URI.class.getFields())
+                .map(field -> {
+                    try {
+                        return field.get(Router.URI.class.getFields());
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace(System.out);
+                        log.error(e.getMessage());
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .map(uri -> uri + "/**")
+                .toArray(String[]::new);
+
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .logout(ServerHttpSecurity.LogoutSpec::disable)
@@ -56,20 +70,8 @@ public class ConnectionManger {
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .anonymous(ServerHttpSecurity.AnonymousSpec::disable)
                 .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
-                .authorizeExchange(spec -> spec.pathMatchers(HttpMethod.POST
-                                , Arrays.stream(Router.URI.class.getFields())
-                                        .map(field -> {
-                                            try {
-                                                return field.get(Router.URI.class.getFields());
-                                            } catch (IllegalAccessException e) {
-                                                e.printStackTrace(System.out);
-                                                log.error(e.getMessage());
-                                                return null;
-                                            }
-                                        })
-                                        .filter(Objects::nonNull)
-                                        .map(uri -> uri + "/**")
-                                        .toArray(String[]::new))
+                .authorizeExchange(spec -> spec.pathMatchers(HttpMethod.GET, uriPatterns).permitAll())
+                .authorizeExchange(spec -> spec.pathMatchers(HttpMethod.POST, uriPatterns)
                         .access((authentication, context) -> {
                             final ServerHttpRequest request = context.getExchange().getRequest();
                             final String token = request.getHeaders().getFirst("Authorization");
