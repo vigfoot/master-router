@@ -1,7 +1,7 @@
 package com.forestfull.router.config;
 
 import com.forestfull.router.Router;
-import com.forestfull.router.service.CallService;
+import com.forestfull.router.service.CommonService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,7 +36,7 @@ public class ConnectionManger {
     @Value("${db.password}")
     private String userPassword;
 
-    private final CallService callService;
+    private final CommonService commonService;
 
     @Bean
     MapReactiveUserDetailsService userDetailsService() {
@@ -91,7 +91,7 @@ public class ConnectionManger {
 
                             final String solution = pathList.getLast();
 
-                            return Mono.just(new AuthorizationDecision(solution.equalsIgnoreCase(callService.getSolution(token))));
+                            return Mono.just(new AuthorizationDecision(solution.equalsIgnoreCase(commonService.getSolution(token))));
                         }))
                 .build();
     }

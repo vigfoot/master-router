@@ -1,9 +1,12 @@
 package com.forestfull.router.dto;
 
-import lombok.Builder;
+import lombok.Data;
 
-@Builder
+import java.time.LocalDateTime;
+
+@Data
 public class ComponentDTO {
     private String method_name;
     private String contents;
+    private LocalDateTime created_at;
 }
