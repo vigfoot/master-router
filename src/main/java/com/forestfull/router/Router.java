@@ -23,9 +23,9 @@ public class Router {
 
     @GetMapping(URI.support)
     ResponseEntity<ResponseDTO> supportComponent() {
-
-        return ResponseEntity.ok(ResponseDTO.builder().build());
+        return ResponseEntity.ok(callService.supportComponent());
     }
+
     @PostMapping(URI.support + "/{solution}")
     ResponseEntity<ResponseDTO> requestSupport(@PathVariable String solution) {
 

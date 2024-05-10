@@ -1,5 +1,6 @@
 package com.forestfull.router.service;
 
+import com.forestfull.router.dto.ResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -32,5 +33,9 @@ public class CallService {
                 .all()
                 .collect(Collectors.toMap(map -> String.valueOf(map.get("token")), map -> String.valueOf(map.get("solution"))))
                 .block();
+    }
+
+    public ResponseDTO supportComponent() {
+        return null;
     }
 }
