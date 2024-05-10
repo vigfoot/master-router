@@ -7,7 +7,6 @@ import reactor.core.publisher.Flux;
 
 public interface TokenRepository extends ReactiveCrudRepository<TokenDTO, Long> {
 
-
     @Query("SELECT t.solution, t.token FROM token t WHERE t.is_used")
     Flux<TokenDTO> getTokenList();
 }
