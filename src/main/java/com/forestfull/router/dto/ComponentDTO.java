@@ -8,5 +8,5 @@ import java.time.LocalDateTime;
 public class ComponentDTO {
     private String method_name;
     private String contents;
-    private LocalDateTime created_at;
+    private LocalDateTime created_time;
 }

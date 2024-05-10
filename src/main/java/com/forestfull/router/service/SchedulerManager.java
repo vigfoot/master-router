@@ -37,7 +37,7 @@ public class SchedulerManager {
                 .filter(dto -> ObjectUtils.isEmpty(componentMap)
                         || componentMap.values().stream()
                         .filter(c -> Objects.equals(dto.getMethod_name(), c.getMethod_name()))
-                        .noneMatch(c -> dto.getCreated_at().isEqual(c.getCreated_at())))
+                        .noneMatch(c -> dto.getCreated_time().isEqual(c.getCreated_time())))
                 .collect(Collectors.toMap(ComponentDTO::getMethod_name, componentDto -> componentDto))
                 .block();
     }
