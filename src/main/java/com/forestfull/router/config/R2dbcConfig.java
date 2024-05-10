@@ -27,7 +27,7 @@ public class R2dbcConfig extends AbstractR2dbcConfiguration {
     }
 
     @Bean
-    ReactiveTransactionManager reactiveTransactionManager(ConnectionFactory connectionFactory){
+    ReactiveTransactionManager reactiveTransactionManager(ConnectionFactory connectionFactory) {
         return new R2dbcTransactionManager(connectionFactory);
     }
 }

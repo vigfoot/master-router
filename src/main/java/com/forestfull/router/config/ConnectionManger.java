@@ -1,6 +1,6 @@
 package com.forestfull.router.config;
 
-import com.forestfull.router.GetRouter;
+import com.forestfull.router.Router;
 import com.forestfull.router.service.CallService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.server.PathContainer;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -24,7 +24,6 @@ import reactor.core.publisher.Mono;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Configuration
@@ -57,11 +56,11 @@ public class ConnectionManger {
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .anonymous(ServerHttpSecurity.AnonymousSpec::disable)
                 .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
-                .authorizeExchange(spec -> spec.pathMatchers(HttpMethod.GET
-                                , Arrays.stream(GetRouter.URI.class.getFields())
+                .authorizeExchange(spec -> spec.pathMatchers(HttpMethod.POST
+                                , Arrays.stream(Router.URI.class.getFields())
                                         .map(field -> {
                                             try {
-                                                return field.get(GetRouter.URI.class.getFields());
+                                                return field.get(Router.URI.class.getFields());
                                             } catch (IllegalAccessException e) {
                                                 e.printStackTrace(System.out);
                                                 log.error(e.getMessage());
@@ -72,18 +71,17 @@ public class ConnectionManger {
                                         .map(uri -> uri + "/**")
                                         .toArray(String[]::new))
                         .access((authentication, context) -> {
-                            final List<String> pathList = Arrays.stream(context.getExchange()
-                                    .getRequest()
-                                    .getPath()
+                            final ServerHttpRequest request = context.getExchange().getRequest();
+                            final String token = request.getHeaders().getFirst("Authorization");
+                            final List<String> pathList = Arrays.stream(request.getPath()
                                     .pathWithinApplication().value()
                                     .split("/"))
                                     .filter(StringUtils::hasText)
                                     .toList();
 
-                            if (ObjectUtils.isEmpty(pathList) || pathList.size() < 3) return Mono.empty();
+                            if (ObjectUtils.isEmpty(pathList)) return Mono.empty();
 
-                            final String solution = pathList.get(pathList.size() - 2);
-                            final String token = pathList.getLast();
+                            final String solution = pathList.getLast();
 
                             return Mono.just(new AuthorizationDecision(solution.equalsIgnoreCase(callService.getSolution(token))));
                         }))

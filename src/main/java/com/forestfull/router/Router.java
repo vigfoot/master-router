@@ -12,7 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @RestController
 @RequiredArgsConstructor
-public class GetRouter {
+public class Router {
 
     private final WebClient webClient;
     private final CallService callService;
@@ -21,8 +21,13 @@ public class GetRouter {
         public static final String support = "/support";
     }
 
-    @GetMapping(URI.support + "/{solution}/{token}")
-    ResponseEntity<ResponseDTO> support(@PathVariable String solution, @PathVariable String token) {
+    @GetMapping(URI.support)
+    ResponseEntity<ResponseDTO> supportComponent() {
+
+        return ResponseEntity.ok(ResponseDTO.builder().build());
+    }
+    @PostMapping(URI.support + "/{solution}")
+    ResponseEntity<ResponseDTO> requestSupport(@PathVariable String solution) {
 
         return ResponseEntity.ok(ResponseDTO.builder().build());
     }
