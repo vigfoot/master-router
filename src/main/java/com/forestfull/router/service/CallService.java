@@ -1,6 +1,6 @@
 package com.forestfull.router.service;
 
-import com.forestfull.router.dto.ResponseDTO;
+import com.forestfull.router.dto.NetworkVO;
 import com.forestfull.router.dto.TokenDTO;
 import com.forestfull.router.repository.TokenRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,12 +24,12 @@ public class CallService {
         return StringUtils.hasText(solution) ? solution : null;
     }
 
-    public Mono<ResponseDTO<TokenDTO>> getSupportComponent() {
+    public Mono<NetworkVO.Response<TokenDTO>> getSupportComponent() {
         return supportRepository.getTokenList()
                 .collectList()
                 .map(list -> {
                     final TokenDTO first = list.getFirst();
-                    return new ResponseDTO<>(ResponseDTO.DATA_TYPE.STRING, first);
+                    return new NetworkVO.Response<>(NetworkVO.DATA_TYPE.STRING, first);
                 });
     }
 }
