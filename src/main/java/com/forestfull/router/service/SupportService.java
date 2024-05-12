@@ -1,6 +1,7 @@
 package com.forestfull.router.service;
 
 import com.forestfull.router.dto.ComponentDTO;
+import com.forestfull.router.dto.NetworkVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -19,5 +20,9 @@ public class SupportService {
 
         final String solution = SchedulerManager.componentMap.get("management").getContents();
         return StringUtils.hasText(solution) ? solution : null;
+    }
+
+    public Mono<Boolean> sulutionSupport(String solution, NetworkVO.Request request) {
+        return Mono.just(false);
     }
 }
