@@ -1,18 +1,13 @@
 package com.forestfull.router;
 
-import com.forestfull.router.dto.ComponentDTO;
-import com.forestfull.router.dto.TokenDTO;
-import com.forestfull.router.service.CommonService;
 import com.forestfull.router.dto.NetworkVO;
 import com.forestfull.router.service.SupportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -38,7 +33,7 @@ public class Router {
         if (ObjectUtils.isEmpty(request))
             throw new RuntimeException(HttpStatus.BAD_REQUEST.name());
 
-        return supportService.sulutionSupport(solution, request)
+        return supportService.solutionSupport(solution, request)
                 .map(isProcessed -> isProcessed
                         ? ResponseEntity
                         .ok(new NetworkVO.Response<>(NetworkVO.DATA_TYPE.STRING, "completed"))

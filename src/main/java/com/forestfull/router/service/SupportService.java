@@ -1,6 +1,5 @@
 package com.forestfull.router.service;
 
-import com.forestfull.router.dto.ComponentDTO;
 import com.forestfull.router.dto.NetworkVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,7 +21,7 @@ public class SupportService {
         return StringUtils.hasText(solution) ? solution : null;
     }
 
-    public Mono<Boolean> sulutionSupport(String solution, NetworkVO.Request request) {
+    public Mono<Boolean> solutionSupport(String solution, NetworkVO.Request request) {
         return Mono.just(false);
     }
 }
