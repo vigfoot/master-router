@@ -1,8 +1,11 @@
 package com.forestfull.router.service;
 
 import com.forestfull.router.dto.NetworkVO;
+import com.forestfull.router.repository.SupportRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
@@ -12,6 +15,7 @@ import reactor.core.publisher.Mono;
 public class SupportService {
 
     private final SchedulerManager schedulerManager;
+    private final SupportRepository supportRepository;
 
     public String getSupportComponent() {
         if (ObjectUtils.isEmpty(SchedulerManager.componentMap))
@@ -21,7 +25,8 @@ public class SupportService {
         return StringUtils.hasText(solution) ? solution : null;
     }
 
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public Mono<Boolean> solutionSupport(String solution, NetworkVO.Request request) {
-        return Mono.just(false);
+        return Mono.empty();
     }
 }
