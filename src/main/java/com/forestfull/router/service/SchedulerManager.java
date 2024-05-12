@@ -1,7 +1,7 @@
 package com.forestfull.router.service;
 
 import com.forestfull.router.dto.ComponentDTO;
-import com.forestfull.router.dto.TokenDTO;
+import com.forestfull.router.dto.ClientDTO;
 import com.forestfull.router.repository.SupportRepository;
 import com.forestfull.router.repository.TokenRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class SchedulerManager {
     @Scheduled(fixedDelay = 10, timeUnit = TimeUnit.MINUTES)
     void setTokenMap() {
         tokenMap = tokenRepository.getTokenList()
-                .collect(Collectors.toMap(TokenDTO::getToken, TokenDTO::getSolution))
+                .collect(Collectors.toMap(ClientDTO::getToken, ClientDTO::getCode))
                 .block();
     }
 
