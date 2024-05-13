@@ -1,4 +1,9 @@
 spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: bigfoot7774@gmail.com
+    password: redbmgpxnfviotwm
   application:
     name: master-router
 db:

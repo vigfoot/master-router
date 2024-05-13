@@ -6,6 +6,7 @@ import com.forestfull.router.dto.ClientDTO;
 import com.forestfull.router.dto.NetworkVO;
 import com.forestfull.router.repository.ClientHistoryRepository;
 import com.forestfull.router.repository.ClientRepository;
+import jakarta.mail.Session;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,7 @@ public class SupportService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public Mono<Boolean> requestForSolutionSupport(String token, String solution, NetworkVO.Request request) {
         try {
+
             return clientHistoryRepository.saveHistoryByTokenAndSolution(token, solution,"0.0.0.01", new ObjectMapper().writeValueAsString(request));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
