@@ -3,7 +3,7 @@ package com.forestfull.router.service;
 import com.forestfull.router.dto.ComponentDTO;
 import com.forestfull.router.dto.ClientDTO;
 import com.forestfull.router.repository.SupportRepository;
-import com.forestfull.router.repository.TokenRepository;
+import com.forestfull.router.repository.ClientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -21,12 +21,12 @@ public class SchedulerManager {
     public static Map<String, String> tokenMap;
     public static Map<String, ComponentDTO> componentMap;
 
-    private final TokenRepository tokenRepository;
+    private final ClientRepository clientRepository;
     private final SupportRepository supportRepository;
 
     @Scheduled(fixedDelay = 10, timeUnit = TimeUnit.MINUTES)
     void setTokenMap() {
-        tokenMap = tokenRepository.getTokenList()
+        tokenMap = clientRepository.getTokenList()
                 .collect(Collectors.toMap(ClientDTO::getToken, ClientDTO::getCode))
                 .block();
     }

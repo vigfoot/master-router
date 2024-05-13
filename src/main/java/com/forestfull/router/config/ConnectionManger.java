@@ -1,7 +1,7 @@
 package com.forestfull.router.config;
 
 import com.forestfull.router.Router;
-import com.forestfull.router.service.CommonService;
+import com.forestfull.router.service.ClientService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,7 +36,7 @@ public class ConnectionManger {
     @Value("${db.password}")
     private String userPassword;
 
-    private final CommonService commonService;
+    private final ClientService clientService;
 
     @Bean
     MapReactiveUserDetailsService userDetailsService() {
@@ -72,26 +72,33 @@ public class ConnectionManger {
                 .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
                 .authorizeExchange(spec -> spec.pathMatchers(HttpMethod.GET, uriPatterns)
                         .access((authentication, context) -> {
-                            final String token = context.getExchange().getRequest().getQueryParams().get("token").getFirst();
-                            return StringUtils.hasText(token)
-                                    ? Mono.just(new AuthorizationDecision(true))
-                                    : Mono.empty();
+                            try {
+                                final String token = context.getExchange().getRequest().getQueryParams().get("token").getFirst();
+                                return Mono.just(new AuthorizationDecision(StringUtils.hasText(clientService.getSolution(token))));
+
+                            } catch (Exception e) {
+                                return Mono.empty();
+                            }
                         }))
                 .authorizeExchange(spec -> spec.pathMatchers(HttpMethod.POST, uriPatterns)
                         .access((authentication, context) -> {
-                            final ServerHttpRequest request = context.getExchange().getRequest();
-                            final String token = request.getHeaders().getFirst("token");
-                            final List<String> pathList = Arrays.stream(request.getPath()
-                                            .pathWithinApplication().value()
-                                            .split("/"))
-                                    .filter(StringUtils::hasText)
-                                    .toList();
+                            try {
+                                final ServerHttpRequest request = context.getExchange().getRequest();
+                                final String token = request.getHeaders().getFirst("token");
+                                final List<String> pathList = Arrays.stream(request.getPath()
+                                                .pathWithinApplication().value()
+                                                .split("/"))
+                                        .filter(StringUtils::hasText)
+                                        .toList();
 
-                            if (ObjectUtils.isEmpty(pathList)) return Mono.empty();
+                                if (ObjectUtils.isEmpty(pathList)) return Mono.empty();
 
-                            final String solution = pathList.getLast();
+                                final String solution = pathList.getLast();
 
-                            return Mono.just(new AuthorizationDecision(solution.equalsIgnoreCase(commonService.getSolution(token))));
+                                return Mono.just(new AuthorizationDecision(solution.equalsIgnoreCase(clientService.getSolution(token))));
+                            } catch (Exception e) {
+                                return Mono.empty();
+                            }
                         }))
                 .build();
     }
