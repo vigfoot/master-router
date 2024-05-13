@@ -2,7 +2,7 @@ package com.forestfull.router.service;
 
 import com.forestfull.router.dto.ComponentDTO;
 import com.forestfull.router.dto.ClientDTO;
-import com.forestfull.router.repository.SupportRepository;
+import com.forestfull.router.repository.ComponentRepository;
 import com.forestfull.router.repository.ClientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -22,7 +22,7 @@ public class SchedulerManager {
     public static Map<String, ComponentDTO> componentMap;
 
     private final ClientRepository clientRepository;
-    private final SupportRepository supportRepository;
+    private final ComponentRepository componentRepository;
 
     @Scheduled(fixedDelay = 10, timeUnit = TimeUnit.MINUTES)
     void setTokenMap() {
@@ -33,7 +33,7 @@ public class SchedulerManager {
 
     @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.MINUTES)
     void setComponentMap() {
-        componentMap = supportRepository.getSupportComponent()
+        componentMap = componentRepository.getSupportComponent()
                 .filter(dto -> ObjectUtils.isEmpty(componentMap)
                         || componentMap.values().stream()
                         .filter(c -> Objects.equals(dto.getMethod_name(), c.getMethod_name()))

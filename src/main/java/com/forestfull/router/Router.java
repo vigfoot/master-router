@@ -16,7 +16,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -58,16 +58,13 @@ public class Router {
     }
 
     @PostMapping(URI.support + "/{solution}")
-    Mono<ResponseEntity<NetworkVO.Response<String>>> solutionSupport(@PathVariable String solution, @RequestBody NetworkVO.Request request) {
+    Mono<ResponseEntity<?>> requestForSolutionSupport(@RequestHeader String token, @PathVariable String solution, @RequestBody NetworkVO.Request request) {
         if (ObjectUtils.isEmpty(request))
             throw new RuntimeException(HttpStatus.BAD_REQUEST.name());
 
-        return supportService.solutionSupport(solution, request)
-                .map(isProcessed -> isProcessed
-                        ? ResponseEntity
-                        .ok(new NetworkVO.Response<>(NetworkVO.DATA_TYPE.STRING, "completed"))
-                        : ResponseEntity
-                        .status(HttpStatus.NOT_MODIFIED.value())
-                        .body(new NetworkVO.Response<>(NetworkVO.DATA_TYPE.ERROR, "잠시후 다시 시도")));
+        return supportService.requestForSolutionSupport(token, solution, request)
+                .map(client -> Objects.nonNull(client)
+                        ? ResponseEntity.ok("completed")
+                        : ResponseEntity.status(HttpStatus.NOT_MODIFIED.value()).body(new NetworkVO.Response<>(NetworkVO.DATA_TYPE.ERROR, "잠시후 다시 시도")));
     }
 }
