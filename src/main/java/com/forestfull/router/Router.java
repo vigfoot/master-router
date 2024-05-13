@@ -63,7 +63,7 @@ public class Router {
             throw new RuntimeException(HttpStatus.BAD_REQUEST.name());
 
         return supportService.requestForSolutionSupport(token, solution, request)
-                .map(client -> Objects.nonNull(client)
+                .map(isCompleted -> Objects.nonNull(isCompleted)
                         ? ResponseEntity.ok("completed")
                         : ResponseEntity.status(HttpStatus.NOT_MODIFIED.value()).body(new NetworkVO.Response<>(NetworkVO.DATA_TYPE.ERROR, "잠시후 다시 시도")));
     }
