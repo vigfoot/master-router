@@ -32,11 +32,16 @@ public class Router {
     }
 
     @GetMapping(URI.dataType)
-    String getDataType() throws JsonProcessingException {
-        return new ObjectMapper().writerWithDefaultPrettyPrinter()
-                .writeValueAsString(Arrays.stream(NetworkVO.DATA_TYPE.values())
-                        .map(Enum::name)
-                        .collect(Collectors.toList()));
+    ResponseEntity<String> getDataType() {
+        try {
+            return ResponseEntity.ok(new ObjectMapper().writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(Arrays.stream(NetworkVO.DATA_TYPE.values())
+                            .map(Enum::name)
+                            .collect(Collectors.toList())));
+
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException();
+        }
     }
 
     @GetMapping(URI.support)
@@ -48,8 +53,8 @@ public class Router {
     }
 
     @GetMapping(URI.support + "/history")
-    Flux<ClientDTO.History> getSupportHistory(String token) {
-        return clientService.getSupportHistory(token);
+    ResponseEntity<Flux<ClientDTO.History>> getSupportHistory(String token) {
+        return ResponseEntity.ok(clientService.getSupportHistory(token));
     }
 
     @PostMapping(URI.support + "/{solution}")
