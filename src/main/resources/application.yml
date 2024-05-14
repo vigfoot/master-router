@@ -2,15 +2,13 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: bigfoot7774@gmail.com
-    password: redbmgpxnfviotwm
-  application:
-    name: master-router
+    username: ENC(wxLWFluUAsCXfPQPwAss+W4sglDmZOaY6qKH8IbmCKA=)
+    password: ENC(remipFFmhRrINbIdwSn0fKo+YHodxgHP1ZzUukqQOuY=)
 db:
   url: r2dbc:mariadb://${db.user}:${db.password}@${db.host}:${db.port}/${db.schema}?${db.option}
-  user: ""
-  password: ""
-  host: ""
-  schema: ""
+  user: ENC(BNseZumvteajJdssgqALJQ==)
+  password: ENC(VmfunY8NvVFTFEcq44wNqIsF8N7BNSVw)
+  host: ENC(WfOuGFi8wlOuPJV8uhPwZhTDGg4Sjsd6HaAv+4vdki4=)
+  port: ENC(A2pDHujtswaqfOAVZfYc7g==)
+  schema: ENC(06wtxXZQ/jvbz4VSg+YPcvs9fQx5D3Ue)
   option: ""
-  port: ""
