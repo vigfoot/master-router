@@ -58,13 +58,10 @@ public class Router {
     }
 
     @PostMapping(URI.support + "/{solution}")
-    Mono<ResponseEntity<?>> requestForSolutionSupport(@RequestHeader String token, @PathVariable String solution, @RequestBody NetworkVO.Request request) {
+    Mono<Boolean> requestForSolutionSupport(@RequestHeader String token, @PathVariable String solution, @RequestBody NetworkVO.Request request) {
         if (ObjectUtils.isEmpty(request))
             throw new RuntimeException(HttpStatus.BAD_REQUEST.name());
 
-        return supportService.requestForSolutionSupport(token, solution, request)
-                .map(isCompleted -> Objects.nonNull(isCompleted)
-                        ? ResponseEntity.ok("completed")
-                        : ResponseEntity.status(HttpStatus.NOT_MODIFIED.value()).body(new NetworkVO.Response<>(NetworkVO.DATA_TYPE.ERROR, "잠시후 다시 시도")));
+        return supportService.requestForSolutionSupport(token, solution, request);
     }
 }

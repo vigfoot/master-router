@@ -37,11 +37,12 @@ public class SupportService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public Mono<Boolean> requestForSolutionSupport(String token, String solution, NetworkVO.Request request) {
         try {
+            
+
 
             return clientHistoryRepository.saveHistoryByTokenAndSolution(token, solution,"0.0.0.01", new ObjectMapper().writeValueAsString(request));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-
     }
 }

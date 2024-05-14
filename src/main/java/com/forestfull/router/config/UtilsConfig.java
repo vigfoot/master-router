@@ -11,19 +11,13 @@ import java.util.function.Consumer;
 @Configuration
 public class UtilsConfig {
 
-    @Value("${spring.profiles.active}")
-    private String key;
-
-    @Bean("jasyptStringEncryptor")
-    StringEncryptor stringEncryptor() {
-        return EncryptionSetting.initEncryptor(key);
-    }
-
     private static class EncryptionSetting {
         public static void main(String[] args) {
 
         }
+
         private static final String privateKey = null;
+
         private static StringEncryptor initEncryptor(String key) {
             final PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
             encryptor.setPassword(key);
@@ -35,4 +29,14 @@ public class UtilsConfig {
         private static final Consumer<String> enc = str
                 -> System.out.println(str + " : ENC(" + initEncryptor(privateKey).encrypt(str) + ")");
     }
+
+    @Value("${spring.profiles.active}")
+    private String key;
+
+    @Bean("jasyptStringEncryptor")
+    StringEncryptor stringEncryptor() {
+        return EncryptionSetting.initEncryptor(key);
+    }
+
+
 }
