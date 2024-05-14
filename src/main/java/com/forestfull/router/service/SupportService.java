@@ -2,13 +2,12 @@ package com.forestfull.router.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.forestfull.router.dto.ClientDTO;
 import com.forestfull.router.dto.NetworkVO;
 import com.forestfull.router.repository.ClientHistoryRepository;
-import com.forestfull.router.repository.ClientRepository;
-import jakarta.mail.Session;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cglib.core.Local;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,13 +15,14 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
-import java.time.Clock;
-import java.time.LocalDateTime;
-
 @Service
 @RequiredArgsConstructor
 public class SupportService {
 
+    @Value("${management.address}")
+    private String managerAddress;
+
+    private final JavaMailSender javaMailSender;
     private final SchedulerManager schedulerManager;
     private final ClientHistoryRepository clientHistoryRepository;
 
@@ -37,10 +37,13 @@ public class SupportService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public Mono<Boolean> requestForSolutionSupport(String token, String solution, NetworkVO.Request request) {
         try {
-            
-
-
-            return clientHistoryRepository.saveHistoryByTokenAndSolution(token, solution,"0.0.0.01", new ObjectMapper().writeValueAsString(request));
+            javaMailSender.send(m -> {
+                final MimeMessageHelper helper = new MimeMessageHelper(m, true);
+                helper.setSubject("[Request for solution support] " + solution);
+                helper.setTo(managerAddress);
+                helper.setText(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(request));
+            });
+            return clientHistoryRepository.saveHistoryByTokenAndSolution(token, solution, "0.0.0.01", new ObjectMapper().writeValueAsString(request));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

@@ -37,6 +37,4 @@ public class UtilsConfig {
     StringEncryptor stringEncryptor() {
         return EncryptionSetting.initEncryptor(key);
     }
-
-
 }

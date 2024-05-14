@@ -61,7 +61,7 @@ public class Router {
     Mono<Boolean> requestForSolutionSupport(@RequestHeader String token, @PathVariable String solution, @RequestBody NetworkVO.Request request) {
         if (ObjectUtils.isEmpty(request))
             throw new RuntimeException(HttpStatus.BAD_REQUEST.name());
-
+        
         return supportService.requestForSolutionSupport(token, solution, request);
     }
 }

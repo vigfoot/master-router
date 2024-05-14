@@ -2,7 +2,6 @@ package com.forestfull.router.service;
 
 import com.forestfull.router.dto.ClientDTO;
 import com.forestfull.router.repository.ClientHistoryRepository;
-import com.forestfull.router.repository.ClientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;

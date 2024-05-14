@@ -2,8 +2,14 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ENC(wxLWFluUAsCXfPQPwAss+W4sglDmZOaY6qKH8IbmCKA=)
+    username: ${management.address}
     password: ENC(remipFFmhRrINbIdwSn0fKo+YHodxgHP1ZzUukqQOuY=)
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 db:
   url: r2dbc:mariadb://${db.user}:${db.password}@${db.host}:${db.port}/${db.schema}?${db.option}
   user: ENC(BNseZumvteajJdssgqALJQ==)
@@ -12,3 +18,5 @@ db:
   port: ENC(A2pDHujtswaqfOAVZfYc7g==)
   schema: ENC(06wtxXZQ/jvbz4VSg+YPcvs9fQx5D3Ue)
   option: ""
+management:
+  address: ENC(wxLWFluUAsCXfPQPwAss+W4sglDmZOaY6qKH8IbmCKA=)
