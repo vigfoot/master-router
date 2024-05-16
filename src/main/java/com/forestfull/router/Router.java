@@ -16,7 +16,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -58,10 +57,16 @@ public class Router {
     }
 
     @PostMapping(URI.support + "/{solution}")
-    Mono<Boolean> requestForSolutionSupport(@RequestHeader String token, @PathVariable String solution, @RequestBody NetworkVO.Request request) {
+    Mono<ResponseEntity<NetworkVO.Response<String>>> requestForSolutionSupport(
+            @RequestHeader String token
+            , @RequestHeader String ipAddress
+            , @PathVariable String solution
+            , @RequestBody NetworkVO.Request request) {
         if (ObjectUtils.isEmpty(request))
             throw new RuntimeException(HttpStatus.BAD_REQUEST.name());
-        
-        return supportService.requestForSolutionSupport(token, solution, request);
+
+        return supportService.requestForSolutionSupport(token, solution, ipAddress, request)
+                .then(Mono.fromCallable(() -> ResponseEntity.ok()
+                        .body(new NetworkVO.Response<>(NetworkVO.DATA_TYPE.STRING, "Success"))));
     }
 }

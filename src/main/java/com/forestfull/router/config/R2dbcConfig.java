@@ -2,23 +2,17 @@ package com.forestfull.router.config;
 
 import io.r2dbc.proxy.ProxyConnectionFactory;
 import io.r2dbc.proxy.core.QueryInfo;
-import io.r2dbc.proxy.support.QueryExecutionInfoFormatter;
 import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactory;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.r2dbc.config.AbstractR2dbcConfiguration;
-import org.springframework.r2dbc.connection.R2dbcTransactionManager;
-import org.springframework.transaction.ReactiveTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @Slf4j

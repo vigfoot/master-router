@@ -1,6 +1,5 @@
 package com.forestfull.router.dto;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.LinkedHashMap;
@@ -8,7 +7,6 @@ import java.util.LinkedHashMap;
 public class NetworkVO {
 
     public static class Request extends LinkedHashMap<String, Object> {
-
     }
 
     @RequiredArgsConstructor

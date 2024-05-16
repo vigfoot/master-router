@@ -13,6 +13,8 @@ public class ExceptionResponse {
 
     @ExceptionHandler({Exception.class})
     ResponseEntity<NetworkVO.Response<String>> isError(Exception e) {
+        e.printStackTrace(System.out);
+
         if (Objects.equals(HttpStatus.BAD_REQUEST.name(), e.getMessage()))
             return ResponseEntity.badRequest()
                     .body(new NetworkVO.Response<>(NetworkVO.DATA_TYPE.ERROR, HttpStatus.BAD_REQUEST.getReasonPhrase()));

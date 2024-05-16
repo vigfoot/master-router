@@ -22,6 +22,6 @@ public interface ClientHistoryRepository extends ReactiveCrudRepository<ClientDT
             ", :ipAddress" +
             ", :requestData" +
             ")")
-    Mono<Boolean> saveHistoryByTokenAndSolution(String token, String code, String ipAddress, String requestData);
+    Mono<Void> saveHistoryByTokenAndSolution(String token, String code, String ipAddress, String requestData);
 
 }

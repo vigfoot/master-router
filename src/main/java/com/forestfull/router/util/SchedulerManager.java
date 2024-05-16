@@ -1,4 +1,4 @@
-package com.forestfull.router.service;
+package com.forestfull.router.util;
 
 import com.forestfull.router.dto.ComponentDTO;
 import com.forestfull.router.dto.ClientDTO;
@@ -25,14 +25,14 @@ public class SchedulerManager {
     private final ComponentRepository componentRepository;
 
     @Scheduled(fixedDelay = 10, timeUnit = TimeUnit.MINUTES)
-    void setTokenMap() {
+    public void setTokenMap() {
         tokenMap = clientRepository.getTokenList()
                 .collect(Collectors.toMap(ClientDTO::getToken, ClientDTO::getCode))
                 .block();
     }
 
     @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.MINUTES)
-    void setComponentMap() {
+    public void setComponentMap() {
         componentMap = componentRepository.getSupportComponent()
                 .filter(dto -> ObjectUtils.isEmpty(componentMap)
                         || componentMap.values().stream()

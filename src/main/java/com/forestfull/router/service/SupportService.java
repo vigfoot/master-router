@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.forestfull.router.dto.NetworkVO;
 import com.forestfull.router.repository.ClientHistoryRepository;
+import com.forestfull.router.util.SchedulerManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -35,7 +36,7 @@ public class SupportService {
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public Mono<Boolean> requestForSolutionSupport(String token, String solution, NetworkVO.Request request) {
+    public Mono<Void> requestForSolutionSupport(String token, String solution, String ipAddress, NetworkVO.Request request) {
         try {
             javaMailSender.send(m -> {
                 final MimeMessageHelper helper = new MimeMessageHelper(m, true);
@@ -43,7 +44,8 @@ public class SupportService {
                 helper.setTo(managerAddress);
                 helper.setText(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(request));
             });
-            return clientHistoryRepository.saveHistoryByTokenAndSolution(token, solution, "0.0.0.01", new ObjectMapper().writeValueAsString(request));
+
+            return clientHistoryRepository.saveHistoryByTokenAndSolution(token, solution, ipAddress, new ObjectMapper().writeValueAsString(request));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
