@@ -89,7 +89,7 @@ public class ConnectionManger {
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .anonymous(ServerHttpSecurity.AnonymousSpec::disable)
                 .addFilterAfter((exchange, chain) -> {
-                    final HttpHeaders headers = HttpHeaders.writableHttpHeaders(exchange.getRequest().getHeaders()); // header read only 변경
+                    final HttpHeaders headers = HttpHeaders.writableHttpHeaders(exchange.getRequest().getHeaders()); // header none read only 변경
 
                     Arrays.stream(IP_HEADER_CANDIDATES).map(headers::get)
                             .filter(ipFromHeader -> !ObjectUtils.isEmpty(ipFromHeader)).map(ipFromHeader -> ipFromHeader.stream()
