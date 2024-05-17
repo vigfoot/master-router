@@ -2,7 +2,7 @@ package com.forestfull.router.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.forestfull.router.Router;
+import com.forestfull.router.controller.ClientController;
 import com.forestfull.router.entity.NetworkVO;
 import com.forestfull.router.repository.ClientHistoryRepository;
 import com.forestfull.router.util.SchedulerManager;
@@ -43,7 +43,7 @@ public class SupportService {
                 final MimeMessageHelper helper = new MimeMessageHelper(m, true);
                 helper.setSubject("[Request for solution support] " + solution);
                 helper.setTo(managerAddress);
-                helper.setText("<p>http://dev.forestfull.com/" + Router.URI.support + "/" + solution + "?token=" + token + "</p>"
+                helper.setText("<p>http://dev.forestfull.com/" + ClientController.URI.support + "/" + solution + "?token=" + token + "</p>"
                         + "<p>해당 Entry Point으로 다음과 같은 요청이 추가되었습니다.</p>"
                         + new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(request), true);
             });

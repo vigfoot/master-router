@@ -1,4 +1,4 @@
-package com.forestfull.router;
+package com.forestfull.router.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
-public class Router {
+public class ClientController {
 
     private final ClientService clientService;
     private final SupportService supportService;
