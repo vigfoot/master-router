@@ -106,6 +106,7 @@ public class ConnectionManger {
 
                         headers.set("ipAddress", remoteAddress.toString());
                     }
+
                     return chain.filter(exchange);
                 }, SecurityWebFiltersOrder.REACTOR_CONTEXT)
                 .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())

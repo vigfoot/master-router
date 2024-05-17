@@ -1,6 +1,6 @@
 package com.forestfull.router.config;
 
-import com.forestfull.router.dto.NetworkVO;
+import com.forestfull.router.entity.NetworkVO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

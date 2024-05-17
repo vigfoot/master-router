@@ -1,4 +1,4 @@
-package com.forestfull.router.dto;
+package com.forestfull.router.entity;
 
 import lombok.RequiredArgsConstructor;
 

@@ -24,6 +24,7 @@ public class SchedulerManager {
     private final ClientRepository clientRepository;
     private final ComponentRepository componentRepository;
 
+
     @Scheduled(fixedDelay = 10, timeUnit = TimeUnit.MINUTES)
     public void setTokenMap() {
         tokenMap = clientRepository.getTokenList()

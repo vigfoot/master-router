@@ -26,6 +26,5 @@ public class ClientDTO {
         private String data;
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime created_time;
-
     }
 }

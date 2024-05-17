@@ -3,7 +3,7 @@ package com.forestfull.router;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.forestfull.router.dto.ClientDTO;
-import com.forestfull.router.dto.NetworkVO;
+import com.forestfull.router.entity.NetworkVO;
 import com.forestfull.router.service.ClientService;
 import com.forestfull.router.service.SupportService;
 import lombok.RequiredArgsConstructor;
