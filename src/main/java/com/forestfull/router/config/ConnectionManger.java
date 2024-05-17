@@ -1,7 +1,11 @@
 package com.forestfull.router.config;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.forestfull.router.Router;
 import com.forestfull.router.service.ClientService;
+import com.forestfull.router.service.CommonService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,6 +45,7 @@ public class ConnectionManger {
     @Value("${db.password}")
     private String userPassword;
 
+    private final CommonService commonService;
     private final ClientService clientService;
 
     @Bean
@@ -68,20 +73,6 @@ public class ConnectionManger {
                 .map(uri -> uri + "/**")
                 .toArray(String[]::new);
 
-        final String[] IP_HEADER_CANDIDATES = {
-                "X-Forwarded-For",
-                "Proxy-Client-IP",
-                "WL-Proxy-Client-IP",
-                "HTTP_X_FORWARDED_FOR",
-                "HTTP_X_FORWARDED",
-                "HTTP_X_CLUSTER_CLIENT_IP",
-                "HTTP_CLIENT_IP",
-                "HTTP_FORWARDED_FOR",
-                "HTTP_FORWARDED",
-                "HTTP_VIA",
-                "REMOTE_ADDR"
-        };
-
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .logout(ServerHttpSecurity.LogoutSpec::disable)
@@ -89,56 +80,31 @@ public class ConnectionManger {
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .anonymous(ServerHttpSecurity.AnonymousSpec::disable)
                 .addFilterAfter((exchange, chain) -> {
-                    final HttpHeaders headers = HttpHeaders.writableHttpHeaders(exchange.getRequest().getHeaders()); // header none read only 변경
-
-                    Arrays.stream(IP_HEADER_CANDIDATES).map(headers::get)
-                            .filter(ipFromHeader -> !ObjectUtils.isEmpty(ipFromHeader)).map(ipFromHeader -> ipFromHeader.stream()
-                                    .filter(StringUtils::hasText)
-                                    .collect(Collectors.joining(", ")))
-                            .findFirst()
-                            .ifPresent(ipAddressString -> headers.add("ipAddress", ipAddressString));
-
-                    if (ObjectUtils.isEmpty(headers.get("ipAddress"))) {
-                        final InetSocketAddress remoteAddress = exchange.getRequest().getRemoteAddress();
-
-                        if (Objects.isNull(remoteAddress))
-                            throw new RuntimeException(HttpStatus.BAD_REQUEST.name());
-
-                        headers.set("ipAddress", remoteAddress.toString());
-                    }
-
+                    commonService.setIpAddressToRequestHeader(exchange.getRequest());
+                    commonService.recordRequestHistory(exchange.getRequest());
                     return chain.filter(exchange);
                 }, SecurityWebFiltersOrder.REACTOR_CONTEXT)
                 .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
                 .authorizeExchange(spec -> spec.pathMatchers(HttpMethod.GET, uriPatterns)
                         .access((authentication, context) -> {
-                            try {
-                                final String token = context.getExchange().getRequest().getQueryParams().get("token").getFirst();
-                                return Mono.just(new AuthorizationDecision(StringUtils.hasText(clientService.getSolution(token))));
-
-                            } catch (Exception e) {
-                                return Mono.empty();
-                            }
+                            final String token = context.getExchange().getRequest().getQueryParams().get("token").getFirst();
+                            return Mono.just(new AuthorizationDecision(StringUtils.hasText(clientService.getSolution(token))));
                         }))
                 .authorizeExchange(spec -> spec.pathMatchers(HttpMethod.POST, uriPatterns)
                         .access((authentication, context) -> {
-                            try {
-                                final ServerHttpRequest request = context.getExchange().getRequest();
-                                final String token = request.getHeaders().getFirst("token");
-                                final List<String> pathList = Arrays.stream(request.getPath()
-                                                .pathWithinApplication().value()
-                                                .split("/"))
-                                        .filter(StringUtils::hasText)
-                                        .toList();
+                            final ServerHttpRequest request = context.getExchange().getRequest();
+                            final String token = request.getHeaders().getFirst("token");
+                            final List<String> pathList = Arrays.stream(request.getPath()
+                                            .pathWithinApplication().value()
+                                            .split("/"))
+                                    .filter(StringUtils::hasText)
+                                    .toList();
 
-                                if (ObjectUtils.isEmpty(pathList)) return Mono.empty();
+                            if (ObjectUtils.isEmpty(pathList)) return Mono.empty();
 
-                                final String solution = pathList.getLast();
+                            final String solution = pathList.getLast();
 
-                                return Mono.just(new AuthorizationDecision(solution.equalsIgnoreCase(clientService.getSolution(token))));
-                            } catch (Exception e) {
-                                return Mono.empty();
-                            }
+                            return Mono.just(new AuthorizationDecision(solution.equalsIgnoreCase(clientService.getSolution(token))));
                         }))
                 .build();
     }
