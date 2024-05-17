@@ -11,7 +11,7 @@ public interface ClientHistoryRepository extends ReactiveCrudRepository<ClientDT
     @Query("SELECT ch.type, ch.ip_address, ch.data FROM client_history ch WHERE ch.client_id = :clientId")
     Flux<ClientDTO.History> getHistoriesByClient_id(Long clientId);
 
-    @Query("SELECT ch.type, ch.ip_address, ch.data, ch.created_time" +
+    @Query("SELECT ch.client_id, ch.type, ch.ip_address, ch.data, ch.created_time" +
             " FROM client_history ch" +
             " JOIN client c ON ch.client_id = c.id AND c.token = :token")
     Flux<ClientDTO.History> getHistoriesByClient_token(String token);
