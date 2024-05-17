@@ -45,7 +45,7 @@ public class SupportService {
                 helper.setTo(managerAddress);
                 helper.setText("<p>http:dev.forestfull.com/" + Router.URI.support + "/" + solution + "?token=" + token + "</p>"
                         + "<p>해당 Entry Point으로 다음과 같은 요청이 추가되었습니다.</p>"
-                        + new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(request));
+                        + new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(request), true);
             });
 
             return clientHistoryRepository.saveHistoryByTokenAndSolution(token, solution, ipAddress, new ObjectMapper().writeValueAsString(request));
