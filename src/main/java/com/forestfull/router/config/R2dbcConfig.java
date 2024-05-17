@@ -38,9 +38,9 @@ public class R2dbcConfig extends AbstractR2dbcConfiguration {
                                 .map(String::valueOf)
                                 .collect(Collectors.joining(", "));
                         if (StringUtils.hasText(bindArguments)) {
-                            log.info("[completed] {} (bindings: {})", query.getQuery(), bindArguments);
+                            log.info("\n[completed] {} (bindings: {})", query.getQuery(), bindArguments);
                         } else {
-                            log.info("[completed] {}", query.getQuery());
+                            log.info("\n[completed] {}", query.getQuery());
                         }
                     }
                 })
