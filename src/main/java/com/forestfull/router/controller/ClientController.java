@@ -7,6 +7,7 @@ import com.forestfull.router.entity.NetworkVO;
 import com.forestfull.router.service.ClientService;
 import com.forestfull.router.service.SupportService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
@@ -18,6 +19,7 @@ import reactor.core.publisher.Mono;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class ClientController {
@@ -32,6 +34,7 @@ public class ClientController {
 
     @GetMapping(URI.dataType)
     ResponseEntity<String> getDataType() {
+        log.info(URI.dataType);
         try {
             return ResponseEntity.ok(new ObjectMapper().writerWithDefaultPrettyPrinter()
                     .writeValueAsString(Arrays.stream(NetworkVO.DATA_TYPE.values())
@@ -45,6 +48,7 @@ public class ClientController {
 
     @GetMapping(URI.support)
     ResponseEntity<NetworkVO.Response<String>> getSupportComponent() {
+        log.info(URI.support);
         final String supportComponent = supportService.getSupportComponent();
         return StringUtils.hasText(supportComponent)
                 ? ResponseEntity.ok(new NetworkVO.Response<>(NetworkVO.DATA_TYPE.JS_SCRIPT, supportComponent))
@@ -53,6 +57,7 @@ public class ClientController {
 
     @GetMapping(URI.support + "/history")
     ResponseEntity<Flux<ClientDTO.History>> getSupportHistory(String token) {
+        log.info(URI.support + "/history");
         return ResponseEntity.ok(clientService.getSupportHistory(token));
     }
 
@@ -62,6 +67,7 @@ public class ClientController {
             , @RequestHeader String ipAddress
             , @PathVariable String solution
             , @RequestBody NetworkVO.Request request) {
+        log.info(URI.support + "/" + solution + " + " + token);
         if (ObjectUtils.isEmpty(request))
             throw new RuntimeException(HttpStatus.BAD_REQUEST.name());
 
