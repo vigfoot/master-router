@@ -11,6 +11,7 @@ import org.springframework.util.ObjectUtils;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -27,19 +28,22 @@ public class SchedulerManager {
 
     @Scheduled(fixedDelay = 10, timeUnit = TimeUnit.MINUTES)
     public void setTokenMap() {
-        tokenMap = clientRepository.getTokenList()
-                .collect(Collectors.toMap(ClientDTO::getToken, ClientDTO::getCode))
-                .block();
+        Optional.ofNullable(clientRepository.getTokenList()
+                        .collectList()
+                        .block())
+                .ifPresent(list -> tokenMap = list.stream().collect(Collectors.toMap(ClientDTO::getToken, ClientDTO::getCode)));
+
     }
 
     @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.MINUTES)
     public void setComponentMap() {
-        componentMap = componentRepository.getSupportComponent()
-                .filter(dto -> ObjectUtils.isEmpty(componentMap)
-                        || componentMap.values().stream()
-                        .filter(c -> Objects.equals(dto.getMethod_name(), c.getMethod_name()))
-                        .noneMatch(c -> dto.getCreated_time().isEqual(c.getCreated_time())))
-                .collect(Collectors.toMap(ComponentDTO::getMethod_name, componentDto -> componentDto))
-                .block();
+        Optional.ofNullable(componentRepository.getSupportComponent()
+                        .filter(dto -> ObjectUtils.isEmpty(componentMap)
+                                || componentMap.values().stream()
+                                .filter(c -> Objects.equals(dto.getMethod_name(), c.getMethod_name()))
+                                .noneMatch(c -> dto.getCreated_time().isEqual(c.getCreated_time())))
+                        .collectList()
+                        .block())
+                .ifPresent(list -> componentMap = list.stream().collect(Collectors.toMap(ComponentDTO::getMethod_name, componentDto -> componentDto)));
     }
 }
