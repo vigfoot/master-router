@@ -32,7 +32,6 @@ public class SchedulerManager {
                         .collectList()
                         .block())
                 .ifPresent(list -> tokenMap = list.stream().collect(Collectors.toMap(ClientDTO::getToken, ClientDTO::getCode)));
-
     }
 
     @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.MINUTES)

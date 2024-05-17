@@ -13,6 +13,5 @@ public class RequestHistoryDTO {
     private Long id;
     private String uri;
     private String request_header;
-    private String request_body;
     private LocalDateTime created_time;
 }

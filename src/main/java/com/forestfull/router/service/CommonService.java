@@ -39,24 +39,18 @@ public class CommonService {
 
     private final RequestHistoryRepository requestHistoryRepository;
 
-    public void recordRequestHistory(ServerHttpRequest request) {
-        if (request.getURI().getPath().contains("favicon.ico")) return;
+    public Mono<RequestHistoryDTO> recordRequestHistory(ServerHttpRequest request) {
+        if (request.getURI().getPath().contains("favicon.ico")) return Mono.empty();
 
-        request.getBody()
-                .collectList()
-                .flatMap(dataBuffers -> {
-                    final ObjectWriter writer = new ObjectMapper().writerWithDefaultPrettyPrinter();
-                    try {
-                        return requestHistoryRepository.save(RequestHistoryDTO.builder()
-                                .uri(writer.writeValueAsString(request.getURI()))
-                                .request_header(writer.writeValueAsString(request.getHeaders()))
-                                .request_body(writer.writeValueAsString(dataBuffers))
-                                .build());
-                    } catch (JsonProcessingException e) {
-                        return Mono.error(new RuntimeException(e));
-                    }
-                })
-                .subscribe();
+        final ObjectWriter writer = new ObjectMapper().writerWithDefaultPrettyPrinter();
+        try {
+            return requestHistoryRepository.save(RequestHistoryDTO.builder()
+                    .uri(writer.writeValueAsString(request.getURI()))
+                    .request_header(writer.writeValueAsString(request.getHeaders()))
+                    .build());
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void setIpAddressToRequestHeader(ServerHttpRequest request) {

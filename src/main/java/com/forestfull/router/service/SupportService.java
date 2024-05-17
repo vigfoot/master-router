@@ -43,7 +43,7 @@ public class SupportService {
                 final MimeMessageHelper helper = new MimeMessageHelper(m, true);
                 helper.setSubject("[Request for solution support] " + solution);
                 helper.setTo(managerAddress);
-                helper.setText("<p>http:dev.forestfull.com/" + Router.URI.support + "/" + solution + "?token=" + token + "</p>"
+                helper.setText("<p>http://dev.forestfull.com/" + Router.URI.support + "/" + solution + "?token=" + token + "</p>"
                         + "<p>해당 Entry Point으로 다음과 같은 요청이 추가되었습니다.</p>"
                         + new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(request), true);
             });

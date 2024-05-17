@@ -79,12 +79,12 @@ public class ConnectionManger {
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .anonymous(ServerHttpSecurity.AnonymousSpec::disable)
+                .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
                 .addFilterAfter((exchange, chain) -> {
                     commonService.setIpAddressToRequestHeader(exchange.getRequest());
-                    commonService.recordRequestHistory(exchange.getRequest());
-                    return chain.filter(exchange);
+                    return commonService.recordRequestHistory(exchange.getRequest())
+                            .flatMap(dto -> chain.filter(exchange));
                 }, SecurityWebFiltersOrder.REACTOR_CONTEXT)
-                .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
                 .authorizeExchange(spec -> spec.pathMatchers(HttpMethod.GET, uriPatterns)
                         .access((authentication, context) -> {
                             final String token = context.getExchange().getRequest().getQueryParams().get("token").getFirst();
