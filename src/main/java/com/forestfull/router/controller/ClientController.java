@@ -17,6 +17,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -33,10 +34,10 @@ public class ClientController {
     }
 
     @GetMapping(URI.dataType)
-    ResponseEntity<String> getDataType() {
+    NetworkVO.Response<String> getDataType() {
         log.info(URI.dataType);
         try {
-            return ResponseEntity.ok(new ObjectMapper().writerWithDefaultPrettyPrinter()
+            return NetworkVO.Response.ok(NetworkVO.DATA_TYPE.JSON, new ObjectMapper().writerWithDefaultPrettyPrinter()
                     .writeValueAsString(Arrays.stream(NetworkVO.DATA_TYPE.values())
                             .map(Enum::name)
                             .collect(Collectors.toList())));
@@ -47,22 +48,23 @@ public class ClientController {
     }
 
     @GetMapping(URI.support)
-    ResponseEntity<NetworkVO.Response<String>> getSupportComponent() {
+    NetworkVO.Response<String> getSupportComponent() {
         log.info(URI.support);
         final String supportComponent = supportService.getSupportComponent();
+
         return StringUtils.hasText(supportComponent)
-                ? ResponseEntity.ok(new NetworkVO.Response<>(NetworkVO.DATA_TYPE.JS_SCRIPT, supportComponent))
-                : ResponseEntity.noContent().build();
+                ? NetworkVO.Response.ok(NetworkVO.DATA_TYPE.JS_SCRIPT, supportComponent)
+                : NetworkVO.Response.fail(HttpStatus.NOT_FOUND);
     }
 
     @GetMapping(URI.support + "/history")
-    ResponseEntity<Flux<ClientDTO.History>> getSupportHistory(String token) {
+    Flux<ClientDTO.History> getSupportHistory(String token) {
         log.info(URI.support + "/history");
-        return ResponseEntity.ok(clientService.getSupportHistory(token));
+        return clientService.getSupportHistory(token);
     }
 
     @PostMapping(URI.support + "/{solution}")
-    Mono<ResponseEntity<NetworkVO.Response<String>>> requestForSolutionSupport(
+    Mono<NetworkVO.Response<?>> requestForSolutionSupport(
             @RequestHeader String token
             , @RequestHeader String ipAddress
             , @PathVariable String solution
@@ -72,7 +74,6 @@ public class ClientController {
             throw new RuntimeException(HttpStatus.BAD_REQUEST.name());
 
         return supportService.requestForSolutionSupport(token, solution, ipAddress, request)
-                .then(Mono.fromCallable(() -> ResponseEntity.ok()
-                        .body(new NetworkVO.Response<>(NetworkVO.DATA_TYPE.STRING, "Success"))));
+                .then(Mono.fromCallable(() -> NetworkVO.Response.ok(NetworkVO.DATA_TYPE.JSON, Collections.singletonMap("success", true))));
     }
 }
