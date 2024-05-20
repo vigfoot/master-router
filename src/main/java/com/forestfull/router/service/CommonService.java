@@ -39,7 +39,7 @@ public class CommonService {
 
     private final RequestHistoryRepository requestHistoryRepository;
 
-    public Mono<RequestHistoryDTO> recordRequestHistory(ServerHttpRequest request) {
+    public Mono<Void> recordRequestHistory(ServerHttpRequest request) {
         if (request.getURI().getPath().contains("favicon.ico")) return Mono.empty();
 
         final ObjectWriter writer = new ObjectMapper().writerWithDefaultPrettyPrinter();
@@ -47,7 +47,7 @@ public class CommonService {
             return requestHistoryRepository.save(RequestHistoryDTO.builder()
                     .uri(writer.writeValueAsString(request.getURI()))
                     .request_header(writer.writeValueAsString(request.getHeaders()))
-                    .build());
+                    .build()).then();
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

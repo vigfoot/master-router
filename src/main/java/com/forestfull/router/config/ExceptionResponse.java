@@ -15,6 +15,9 @@ public class ExceptionResponse {
     NetworkVO.Response<String> isError(Exception e) {
         e.printStackTrace(System.out);
 
+        if (Objects.equals(HttpStatus.UNAUTHORIZED.name(), e.getMessage()))
+            return NetworkVO.Response.fail(HttpStatus.UNAUTHORIZED, NetworkVO.DATA_TYPE.ERROR.name());
+
         if (Objects.equals(HttpStatus.BAD_REQUEST.name(), e.getMessage()))
             return NetworkVO.Response.fail(HttpStatus.BAD_REQUEST, NetworkVO.DATA_TYPE.ERROR.name());
 
