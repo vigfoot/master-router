@@ -3,7 +3,7 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: ${management.address}
-    password: ENC(remipFFmhRrINbIdwSn0fKo+YHodxgHP1ZzUukqQOuY=)
+    password: ENC(eLJ/Us1GUOiQ1iRAhY4W5PouHz2RfDaiC4ctdbZx4ho=)
     properties:
       mail:
         smtp:
@@ -12,11 +12,11 @@ spring:
             enable: true
 db:
   url: r2dbc:mariadb://${db.user}:${db.password}@${db.host}:${db.port}/${db.schema}?${db.option}
-  user: ENC(BNseZumvteajJdssgqALJQ==)
-  password: ENC(VmfunY8NvVFTFEcq44wNqIsF8N7BNSVw)
-  host: ENC(WfOuGFi8wlOuPJV8uhPwZhTDGg4Sjsd6HaAv+4vdki4=)
-  port: ENC(A2pDHujtswaqfOAVZfYc7g==)
-  schema: ENC(06wtxXZQ/jvbz4VSg+YPcvs9fQx5D3Ue)
+  user: ENC(sJwAPDpFpCpYliO8CL7vTA==)
+  password: ENC(KE4rra8HZD1EcALaImpUG5IA2JzKyYm8)
+  host: ENC(P+srQ8WFc36tTDGtn8g7MVfT4ro4f2CxQB7mLt1vzk8=)
+  port: ENC(e92pgEpnwJuZNdWXX4cc1g==)
+  schema: ENC(dA27LvTvk/SYxnOspgce/Sh9KVqG1Hvr)
   option: ""
 management:
-  address: ENC(wxLWFluUAsCXfPQPwAss+W4sglDmZOaY6qKH8IbmCKA=)
+  address: ENC(PhaQ3ZLpQWvWcDJxFv5T8c43cYlhcrSqIo715MIi2f0=)

@@ -12,14 +12,12 @@ import java.util.Objects;
 public class ExceptionResponse {
 
     @ExceptionHandler({Exception.class})
-    ResponseEntity<NetworkVO.Response<String>> isError(Exception e) {
+    NetworkVO.Response<String> isError(Exception e) {
         e.printStackTrace(System.out);
 
         if (Objects.equals(HttpStatus.BAD_REQUEST.name(), e.getMessage()))
-            return ResponseEntity.badRequest()
-                    .body(new NetworkVO.Response<>(NetworkVO.DATA_TYPE.ERROR, HttpStatus.BAD_REQUEST.getReasonPhrase()));
+            return NetworkVO.Response.fail(HttpStatus.BAD_REQUEST, NetworkVO.DATA_TYPE.ERROR.name());
 
-        return ResponseEntity.internalServerError()
-                .body(new NetworkVO.Response<>(NetworkVO.DATA_TYPE.ERROR, HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()));
+        return NetworkVO.Response.fail(HttpStatus.INTERNAL_SERVER_ERROR, NetworkVO.DATA_TYPE.ERROR.name());
     }
 }

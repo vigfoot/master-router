@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @Configuration
@@ -16,8 +17,6 @@ public class UtilsConfig {
 
         }
 
-        private static final String privateKey = null;
-
         private static StringEncryptor initEncryptor(String key) {
             final PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
             encryptor.setPassword(key);
@@ -26,8 +25,10 @@ public class UtilsConfig {
             return encryptor;
         }
 
-        private static final Consumer<String> enc = str
-                -> System.out.println(str + " : ENC(" + initEncryptor(privateKey).encrypt(str) + ")");
+        private static final BiConsumer<String, String> enc = (key, str)
+                -> System.out.println(str + " : ENC(" + initEncryptor(key).encrypt(str) + ")");
+        private static final BiConsumer<String, String> dec = (key, str)
+                -> System.out.println(str + " : " + initEncryptor(key).decrypt(str));
     }
 
     @Value("${spring.profiles.active}")
