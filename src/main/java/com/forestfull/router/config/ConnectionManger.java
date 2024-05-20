@@ -12,20 +12,32 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.authorization.AuthorizationContext;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.net.URI;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -45,13 +57,19 @@ public class ConnectionManger {
     private final CommonService commonService;
     private final ClientService clientService;
 
+
     @Bean
     MapReactiveUserDetailsService userDetailsService() {
         return new MapReactiveUserDetailsService(User.builder()
                 .username(userName)
                 .password(userPassword)
-                .authorities("manager")
+                .roles("MANAGER")
                 .build());
+    }
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
     @Bean
@@ -85,6 +103,14 @@ public class ConnectionManger {
                 .toArray(String[]::new);
 
         return http
+                .httpBasic(Customizer.withDefaults())
+                .formLogin(spec -> spec.authenticationSuccessHandler((webFilterExchange, authentication) -> {
+                    authentication.setAuthenticated(true);
+                    final ServerHttpResponse response = webFilterExchange.getExchange().getResponse();
+                    response.setStatusCode(HttpStatus.OK);
+                    return response.setComplete();
+                }))
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(spec -> spec.pathMatchers(HttpMethod.GET, clientUriPatterns)
                         .access((authentication, context) -> {
                             final List<String> tokenList = context.getExchange().getRequest().getQueryParams().get("token");
@@ -108,21 +134,19 @@ public class ConnectionManger {
                             return Mono.just(new AuthorizationDecision(solution.equalsIgnoreCase(clientService.getSolution(token))));
                         })
                 )
-                .authorizeExchange(spec -> spec.anyExchange()
-                        .access((authentication, context) ->
-                                authentication.flatMap(auth -> Mono.just(new AuthorizationDecision(auth.isAuthenticated())))))
-                .addFilterAfter((exchange, chain) ->
-                        chain.filter(exchange)
-                                .then(Mono.defer(() -> {
-                                    if (Arrays.stream(clientUriPatterns)
-                                            .anyMatch(pattern -> pathMatcher.match(pattern, exchange.getRequest().getURI().getPath()))) {
-                                        commonService.setIpAddressToRequestHeader(exchange.getRequest());
-                                        return commonService.recordRequestHistory(exchange.getRequest());
-                                    } else {
-                                        return Mono.empty();
-                                    }
-                                })), SecurityWebFiltersOrder.LAST)
-                .build();
+                .authorizeExchange(spec -> spec.pathMatchers(managementUriPatterns).hasRole("MANAGER"))
+                .addFilterAfter((exchange, chain) -> {
+                    if (exchange.getRequest().getURI().getPath().contains("login")) return chain.filter(exchange);
+                    if (Arrays.stream(clientUriPatterns)
+                            .noneMatch(pattern -> pathMatcher.match(pattern, exchange.getRequest().getURI().getPath())))
+                        return chain.filter(exchange);
 
+                    return chain.filter(exchange)
+                            .then(Mono.defer(() -> {
+                                commonService.setIpAddressToRequestHeader(exchange.getRequest());
+                                return commonService.recordRequestHistory(exchange.getRequest());
+                            }));
+                }, SecurityWebFiltersOrder.LAST)
+                .build();
     }
 }

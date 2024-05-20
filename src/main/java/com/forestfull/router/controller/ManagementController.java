@@ -22,6 +22,8 @@ public class ManagementController {
         public static final String management = "/management";
     }
 
+
+
     @PostMapping(URI.management)
     Mono<String> test() {
         return Mono.empty();
