@@ -17,8 +17,10 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
@@ -28,9 +30,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Slf4j
 @Configuration
@@ -50,12 +50,15 @@ public class ConnectionManger {
 
 
     @Bean
-    MapReactiveUserDetailsService userDetailsService() {
-        return new MapReactiveUserDetailsService(User.builder()
+    MapReactiveUserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
+        final UserDetails user = User.builder()
                 .username(userName)
-                .password(passwordEncoder().encode(userPassword))
-                .authorities(ROLE_MANAGER)
-                .build());
+                .password(userPassword)
+                .passwordEncoder(passwordEncoder::encode)
+                .authorities((GrantedAuthority) () -> ROLE_MANAGER)
+                .build();
+
+        return new MapReactiveUserDetailsService(Collections.singletonMap(userName, user));
     }
 
     @Bean
@@ -129,7 +132,7 @@ public class ConnectionManger {
                             return Mono.just(new AuthorizationDecision(solution.equalsIgnoreCase(clientService.getSolution(token))));
                         })
                 )
-                .authorizeExchange(spec -> spec.pathMatchers(managementUriPatterns).hasRole(ROLE_MANAGER))
+                .authorizeExchange(spec -> spec.pathMatchers(managementUriPatterns).hasAuthority(ROLE_MANAGER))
                 .exceptionHandling(spec -> spec.accessDeniedHandler((exchange, denied) -> {
                     final NetworkVO.Response<String> errorResponse = ExceptionResponse.getErrorResponse(denied);
                     exchange.getResponse().setStatusCode(errorResponse.getStatusCode());

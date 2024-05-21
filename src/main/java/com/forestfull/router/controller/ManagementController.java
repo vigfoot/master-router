@@ -5,7 +5,7 @@ import com.forestfull.router.service.ManagementService;
 import com.forestfull.router.service.SupportService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
@@ -24,7 +24,7 @@ public class ManagementController {
 
 
 
-    @PostMapping(URI.management)
+    @GetMapping(URI.management)
     Mono<String> test() {
         return Mono.empty();
     }
