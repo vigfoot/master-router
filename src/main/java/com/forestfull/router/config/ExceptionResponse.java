@@ -12,7 +12,7 @@ import java.util.Objects;
 public class ExceptionResponse {
 
     @ExceptionHandler({Exception.class})
-    NetworkVO.Response<String> isError(Exception e) {
+    public static NetworkVO.Response<String> isError(Exception e) {
         e.printStackTrace(System.out);
 
         if (Objects.equals(HttpStatus.UNAUTHORIZED.name(), e.getMessage()))

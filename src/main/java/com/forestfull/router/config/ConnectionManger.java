@@ -2,6 +2,7 @@ package com.forestfull.router.config;
 
 import com.forestfull.router.controller.ClientController;
 import com.forestfull.router.controller.ManagementController;
+import com.forestfull.router.entity.NetworkVO;
 import com.forestfull.router.service.ClientService;
 import com.forestfull.router.service.CommonService;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -39,6 +41,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -67,7 +70,7 @@ public class ConnectionManger {
         return new MapReactiveUserDetailsService(User.builder()
                 .username(userName)
                 .password(passwordEncoder().encode(userPassword))
-                .roles(ROLE_MANAGER)
+                .authorities(ROLE_MANAGER)
                 .build());
     }
 
@@ -143,6 +146,16 @@ public class ConnectionManger {
                         })
                 )
                 .authorizeExchange(spec -> spec.pathMatchers(managementUriPatterns).hasRole(ROLE_MANAGER))
+                .exceptionHandling(spec -> spec.accessDeniedHandler((exchange, denied) -> {
+                    final NetworkVO.Response<String> errorResponse = ExceptionResponse.isError(denied);
+                    exchange.getResponse().setStatusCode(errorResponse.getStatusCode());
+
+                    assert errorResponse.getBody() != null;
+                    final byte[] bytes = errorResponse.getBody().getBytes(StandardCharsets.UTF_8);
+                    final DataBuffer responseDataBuffer = exchange.getResponse().bufferFactory().wrap(bytes);
+
+                    return exchange.getResponse().writeWith(Mono.just(responseDataBuffer));
+                }))
                 .build();
     }
 }
