@@ -72,7 +72,7 @@ public class ConnectionManger {
 
     @Bean
     PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
     @Bean
@@ -108,7 +108,6 @@ public class ConnectionManger {
         return http
                 .httpBasic(Customizer.withDefaults())
                 .formLogin(spec -> spec.authenticationSuccessHandler((webFilterExchange, authentication) -> {
-                    authentication.setAuthenticated(true);
                     final ServerHttpResponse response = webFilterExchange.getExchange().getResponse();
                     response.setStatusCode(HttpStatus.OK);
                     return response.setComplete();
