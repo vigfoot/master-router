@@ -107,7 +107,6 @@ public class ConnectionManger {
                 .toArray(String[]::new);
 
         return http
-                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .headers(spec -> spec.writer(exchange -> {
                     if (exchange.getRequest().getURI().getPath().contains("login")) return Mono.empty();
                     if (Arrays.stream(clientUriPatterns)
@@ -117,6 +116,7 @@ public class ConnectionManger {
                     return commonService.setIpAddressToRequestHeader(exchange.getRequest())
                             .flatMap(commonService::recordRequestHistory);
                 }))
+                .httpBasic(Customizer.withDefaults())
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(spec -> spec.pathMatchers(HttpMethod.GET, clientUriPatterns)
@@ -142,11 +142,7 @@ public class ConnectionManger {
                             return Mono.just(new AuthorizationDecision(solution.equalsIgnoreCase(clientService.getSolution(token))));
                         })
                 )
-                .authorizeExchange(spec -> {
-                    spec.pathMatchers(managementUriPatterns).hasRole(ROLE_MANAGER)
-                            .anyExchange()
-                            .denyAll();
-                })
+                .authorizeExchange(spec -> spec.pathMatchers(managementUriPatterns).hasRole(ROLE_MANAGER))
                 .build();
     }
 }
