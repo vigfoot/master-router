@@ -14,6 +14,7 @@ import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -24,6 +25,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.authorization.AuthorizationContext;
+import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
+import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -44,10 +48,8 @@ public class ConnectionManger {
     @Value("${db.password}")
     private String userPassword;
 
-    private static final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final CommonService commonService;
     private final ClientService clientService;
-
 
     @Bean
     MapReactiveUserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
@@ -55,7 +57,7 @@ public class ConnectionManger {
                 .username(userName)
                 .password(userPassword)
                 .passwordEncoder(passwordEncoder::encode)
-                .authorities((GrantedAuthority) () -> ROLE_MANAGER)
+                .roles(ROLE_MANAGER)
                 .build();
 
         return new MapReactiveUserDetailsService(Collections.singletonMap(userName, user));
@@ -68,6 +70,7 @@ public class ConnectionManger {
 
     @Bean
     SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) {
+        final String[] resourcesUriPatterns = {"/favicon.ico, /util"};
         final String[] clientUriPatterns = Arrays.stream(ClientController.URI.class.getFields())
                 .map(field -> {
                     try {
@@ -100,7 +103,7 @@ public class ConnectionManger {
                 .headers(spec -> spec.writer(exchange -> {
                     if (exchange.getRequest().getURI().getPath().contains("login")) return Mono.empty();
                     if (Arrays.stream(clientUriPatterns)
-                            .noneMatch(pattern -> pathMatcher.match(pattern, exchange.getRequest().getURI().getPath())))
+                            .noneMatch(pattern -> new AntPathMatcher().match(pattern, exchange.getRequest().getURI().getPath())))
                         return Mono.empty();
 
                     return commonService.setIpAddressToRequestHeader(exchange.getRequest())
@@ -108,6 +111,7 @@ public class ConnectionManger {
                 }))
                 .httpBasic(Customizer.withDefaults())
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
+                .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(spec -> spec.pathMatchers(HttpMethod.GET, clientUriPatterns)
                         .access((authentication, context) -> {
@@ -132,7 +136,7 @@ public class ConnectionManger {
                             return Mono.just(new AuthorizationDecision(solution.equalsIgnoreCase(clientService.getSolution(token))));
                         })
                 )
-                .authorizeExchange(spec -> spec.pathMatchers(managementUriPatterns).hasAuthority(ROLE_MANAGER))
+                .authorizeExchange(spec -> spec.pathMatchers(managementUriPatterns).hasRole(ROLE_MANAGER))
                 .exceptionHandling(spec -> spec.accessDeniedHandler((exchange, denied) -> {
                     final NetworkVO.Response<String> errorResponse = ExceptionResponse.getErrorResponse(denied);
                     exchange.getResponse().setStatusCode(errorResponse.getStatusCode());

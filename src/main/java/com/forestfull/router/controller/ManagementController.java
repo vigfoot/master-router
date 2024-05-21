@@ -1,5 +1,6 @@
 package com.forestfull.router.controller;
 
+import com.forestfull.router.entity.NetworkVO;
 import com.forestfull.router.service.ClientService;
 import com.forestfull.router.service.ManagementService;
 import com.forestfull.router.service.SupportService;
@@ -25,7 +26,7 @@ public class ManagementController {
 
 
     @GetMapping(URI.management)
-    Mono<String> test() {
-        return Mono.empty();
+    NetworkVO.Response<String> test() {
+        return NetworkVO.Response.ok(NetworkVO.DATA_TYPE.STRING, "Hello world");
     }
 }
