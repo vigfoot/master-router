@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 
 import java.util.Collections;
@@ -18,7 +19,7 @@ public class NetworkVO {
     public static class Response<T> extends ResponseEntity<T> {
 
         public Response(DATA_TYPE dataType, T contents, HttpStatus httpStatus) {
-            super(contents, (MultiValueMap<String, String>) Collections.singletonMap("data-type", Collections.singletonList(dataType.name())), httpStatus);
+            super(contents, CollectionUtils.toMultiValueMap(Collections.singletonMap("data-type", Collections.singletonList(dataType.name()))), httpStatus);
         }
 
         public static <T> Response<T> ok(DATA_TYPE dataType, T body) {

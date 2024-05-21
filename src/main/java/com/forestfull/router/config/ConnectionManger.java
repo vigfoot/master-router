@@ -51,6 +51,7 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class ConnectionManger {
 
+    private static final String ROLE_MANAGER = "MANAGER";
     @Value("${db.user}")
     private String userName;
     @Value("${db.password}")
@@ -66,7 +67,7 @@ public class ConnectionManger {
         return new MapReactiveUserDetailsService(User.builder()
                 .username(userName)
                 .password(passwordEncoder().encode(userPassword))
-                .roles("MANAGER")
+                .roles(ROLE_MANAGER)
                 .build());
     }
 
@@ -106,12 +107,17 @@ public class ConnectionManger {
                 .toArray(String[]::new);
 
         return http
-                .httpBasic(Customizer.withDefaults())
-                .formLogin(spec -> spec.authenticationSuccessHandler((webFilterExchange, authentication) -> {
-                    final ServerHttpResponse response = webFilterExchange.getExchange().getResponse();
-                    response.setStatusCode(HttpStatus.OK);
-                    return response.setComplete();
+                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+                .headers(spec -> spec.writer(exchange -> {
+                    if (exchange.getRequest().getURI().getPath().contains("login")) return Mono.empty();
+                    if (Arrays.stream(clientUriPatterns)
+                            .noneMatch(pattern -> pathMatcher.match(pattern, exchange.getRequest().getURI().getPath())))
+                        return Mono.empty();
+
+                    return commonService.setIpAddressToRequestHeader(exchange.getRequest())
+                            .flatMap(commonService::recordRequestHistory);
                 }))
+                .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(spec -> spec.pathMatchers(HttpMethod.GET, clientUriPatterns)
                         .access((authentication, context) -> {
@@ -136,19 +142,11 @@ public class ConnectionManger {
                             return Mono.just(new AuthorizationDecision(solution.equalsIgnoreCase(clientService.getSolution(token))));
                         })
                 )
-                .authorizeExchange(spec -> spec.pathMatchers(managementUriPatterns).hasRole("MANAGER"))
-                .addFilterAfter((exchange, chain) -> {
-                    if (exchange.getRequest().getURI().getPath().contains("login")) return chain.filter(exchange);
-                    if (Arrays.stream(clientUriPatterns)
-                            .noneMatch(pattern -> pathMatcher.match(pattern, exchange.getRequest().getURI().getPath())))
-                        return chain.filter(exchange);
-
-                    return chain.filter(exchange)
-                            .then(Mono.defer(() -> {
-                                commonService.setIpAddressToRequestHeader(exchange.getRequest());
-                                return commonService.recordRequestHistory(exchange.getRequest());
-                            }));
-                }, SecurityWebFiltersOrder.LAST)
+                .authorizeExchange(spec -> {
+                    spec.pathMatchers(managementUriPatterns).hasRole(ROLE_MANAGER)
+                            .anyExchange()
+                            .denyAll();
+                })
                 .build();
     }
 }

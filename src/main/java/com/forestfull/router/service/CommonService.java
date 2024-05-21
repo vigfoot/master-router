@@ -53,7 +53,7 @@ public class CommonService {
         }
     }
 
-    public void setIpAddressToRequestHeader(ServerHttpRequest request) {
+    public Mono<ServerHttpRequest> setIpAddressToRequestHeader(ServerHttpRequest request) {
         final HttpHeaders headers = HttpHeaders.writableHttpHeaders(request.getHeaders()); // header none read only 변경
 
         Arrays.stream(IP_HEADER_CANDIDATES).map(headers::get)
@@ -71,5 +71,6 @@ public class CommonService {
 
             headers.set("ipAddress", remoteAddress.toString());
         }
+        return Mono.just(request);
     }
 }
